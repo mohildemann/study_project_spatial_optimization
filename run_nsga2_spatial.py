@@ -43,6 +43,14 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from initial_population import initialize_spatial
 
+from pymoo import  factory
+from pymoo.model.crossover import Crossover
+import spatial_extention_pymoo
+factory.get_sampling_options = spatial_extention_pymoo._new_get_sampling_options
+factory.get_crossover_options = spatial_extention_pymoo._new_get_crossover_options
+factory.get_mutation_options = spatial_extention_pymoo._new_get_mutation_options
+Crossover.do = spatial_extention_pymoo._new_crossover_do
+
 default_directory = r"C:\Users\morit\OneDrive - Universität Münster\PhD\Study Project\Internship"
 
 # --------------------------------------------------
