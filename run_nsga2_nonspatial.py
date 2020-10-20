@@ -1,51 +1,32 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Sep  1 09:42:01 2020
+Created on Wed Oct 14 10:18:04 2020
 
 @author: jessicaruijsch
-
-# --------------------------------------------------
-# goal of script 
-# --------------------------------------------------  
-    in this script the 'getting started' of the pymoo website
-    is executed. It also contains comment on each step
-    http://pymoo.org/getting_started.html
-
-# --------------------------------------------------
-# optimization problem
-# --------------------------------------------------   
-    min f1(x) = (x1^2 + x2^2)
-    max f2(x) = -(x1-1)^2 - x2^2
-    
-    s.t. g1(x) = 2(x1 - 0.1) * (x1 - 0.9) <= 0
-         g2(x) = 20(x1-0.4) * (x1-0.6) >= 0 
-        
-         -2 <= x1 <= 2
-         -2 <= x2 <= 2
-    
-two objective (M=2), two inequality constrains (J=2), two variables (N=2), 
-no equality constrains (K=0)
-
-# --------------------------------------------------
-# problem definition
-# --------------------------------------------------
-    only minimization problems
-    all constraint functions need to be formulated as <= 0
-    normalization of constrains is recommended
-    
-    min f1(x) = (x1^2 + x2^2)
-    min f2(x) = (x1-1)^2 + x2^2
-    
-    s.t. g1(x) = 2(x1 - 0.1) * (x1 - 0.9) / 0.18 <= 0    because (2*(-0.1)*(-0.9)=0.18)
-         g2(x) = -20(x1-0.4) * (x1-0.6) / 4.8 <= 0       because (20*(-0.4)*(-0.6)=4.8)
-        
-         -2 <= x1 <= 2
-         -2 <= x2 <= 2
 """
 
-import numpy as np
 from pymoo.util.misc import stack
+
+def func_pf(flatten=True, **kwargs):
+        f1_a = np.linspace(0.1**2, 0.4**2, 100)
+        f2_a = (np.sqrt(f1_a) - 1)**2
+
+        f1_b = np.linspace(0.6**2, 0.9**2, 100)
+        f2_b = (np.sqrt(f1_b) - 1)**2
+
+        a, b = np.column_stack([f1_a, f2_a]), np.column_stack([f1_b, f2_b])
+        return stack(a, b, flatten=flatten)
+
+def func_ps(flatten=True, **kwargs):
+        x1_a = np.linspace(0.1, 0.4, 50)
+        x1_b = np.linspace(0.6, 0.9, 50)
+        x2 = np.zeros(50)
+
+        a, b = np.column_stack([x1_a, x2]), np.column_stack([x1_b, x2])
+        return stack(a,b, flatten=flatten)
+
+import numpy as np
 from pymoo.model.problem import Problem
 
 
@@ -78,30 +59,12 @@ class MyProblem(Problem):
         out["F"] = np.column_stack([f1, f2])
         out["G"] = np.column_stack([g1, g2])
 
+    # calculate pareto front
+    def _calc_pareto_front(self, *args, **kwargs):
+        return func_pf(**kwargs)
 
-    # --------------------------------------------------
-    # Pareto-front - not necessary but used for plotting
-    # --------------------------------------------------
-    def _calc_pareto_front(self, flatten=True, **kwargs):
-        f1_a = np.linspace(0.1**2, 0.4**2, 100)
-        f2_a = (np.sqrt(f1_a) - 1)**2
-
-        f1_b = np.linspace(0.6**2, 0.9**2, 100)
-        f2_b = (np.sqrt(f1_b) - 1)**2
-
-        a, b = np.column_stack([f1_a, f2_a]), np.column_stack([f1_b, f2_b])
-        return stack(a, b, flatten=flatten)
-
-    # --------------------------------------------------
-    # Pareto-set - not necessary but used for plotting
-    # --------------------------------------------------
-    def _calc_pareto_set(self, flatten=True, **kwargs):
-        x1_a = np.linspace(0.1, 0.4, 50)
-        x1_b = np.linspace(0.6, 0.9, 50)
-        x2 = np.zeros(50)
-
-        a, b = np.column_stack([x1_a, x2]), np.column_stack([x1_b, x2])
-        return stack(a,b, flatten=flatten)
+    def _calc_pareto_set(self, *args, **kwargs):
+        return func_ps(**kwargs)
 
 problem = MyProblem()
 
@@ -126,7 +89,7 @@ algorithm = NSGA2(
 # --------------------------------------------------
 from pymoo.factory import get_termination
 
-termination = get_termination("n_gen", 100)
+termination = get_termination("n_gen", 40)
 
 # --------------------------------------------------
 # optimize
@@ -153,7 +116,8 @@ pf = problem.pareto_front(use_cache=False, flatten=False)
 # Design Space
 plot = Scatter(title = "Design Space", axis_labels="x")
 plot.add(res.X, s=30, facecolors='none', edgecolors='r')
-plot.add(ps, plot_type="line", color="black", alpha=0.7)
+if ps is not None:
+    plot.add(ps, plot_type="line", color="black", alpha=0.7)
 plot.do()
 plot.apply(lambda ax: ax.set_xlim(-0.5, 1.5))
 plot.apply(lambda ax: ax.set_ylim(-2, 2))
@@ -162,36 +126,9 @@ plot.show()
 # Objective Space
 plot2 = Scatter(title = "Objective Space")
 plot2.add(res.F)
-plot2.add(pf, plot_type="line", color="black", alpha=0.7)
+if pf is not None:
+    plot2.add(pf, plot_type="line", color="black", alpha=0.7)
 plot2.show()
-
-# --------------------------------------------------
-# performance tracking
-# --------------------------------------------------
-# import matplotlib.pyplot as plt
-# from pymoo.performance_indicator.hv import Hypervolume
-
-# # create the performance indicator object with reference point (4,4)
-# metric = Hypervolume(ref_point=np.array([1.0, 1.0]))
-
-# # collect the population in each generation
-# pop_each_gen = [a.pop for a in res.history]
-
-# # receive the population in each generation
-# obj_and_feasible_each_gen = [pop[pop.get("feasible")[:,0]].get("F") for pop in pop_each_gen]
-
-# # calculate for each generation the HV metric
-# hv = [metric.calc(f) for f in obj_and_feasible_each_gen]
-
-# # function evaluations at each snapshot
-# n_evals = np.array([a.evaluator.n_eval for a in res.history])
-
-# # visualze the convergence curve
-# plt.plot(n_evals, hv, '-o')
-# plt.title("Convergence")
-# plt.xlabel("Function Evaluations")
-# plt.ylabel("Hypervolume")
-# plt.show()
 
 
 """

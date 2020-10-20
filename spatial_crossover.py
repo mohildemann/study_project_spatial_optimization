@@ -13,7 +13,7 @@ To do:
 import numpy as np 
 import random
 
-from compute_genome import getNbh, determine_patch_elements, create_patch_ID_map
+from compute_genome import create_patch_ID_map
 from pymoo.model.crossover import Crossover
 
 
