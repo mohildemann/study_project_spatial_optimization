@@ -1,6 +1,6 @@
 # study_project
  
-This folder ('Scripts') contains the scripts for the spatial functions of the optimalization.
+This folder contains the scripts for the spatial functions of the optimalization.
 
 - calculate_objectives.py --> contains functions to calculate the objective functions
 - compute_genome.py --> contains helper functions from CoMOLA to compute patches and genome from the land use map
