@@ -63,7 +63,7 @@ def calculate_tot_yield(landuse_map_in, sugarcane_map,soy_map,cotton_map,pasture
 # calculate for each land use the above ground biomass
 # add all land uses
 
-def calculate_CO2_emissions(landuse_map_in,cellarea):
+def calculate_above_ground_biomass(landuse_map_in,cellarea):
     #multiply each land use type with a certain value to calculate above ground biomass
     # calculate the total are of each land use type
     all_emissions = []

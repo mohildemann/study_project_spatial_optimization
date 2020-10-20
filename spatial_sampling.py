@@ -1,6 +1,5 @@
 import numpy as np
 from pymoo.model.sampling import Sampling
-from pymoo.util.normalization import denormalize
 import initial_population
 
 class SpatialSampling(Sampling):
@@ -13,6 +12,6 @@ class SpatialSampling(Sampling):
         self.var_type = var_type
 
     def _do(self, problem, n_samples, **kwargs):
-        default_directory = r"C:\Users\morit\OneDrive - Universität Münster\PhD\Study Project\Internship"
+        default_directory = "/Users/jessicaruijsch/Documents/Internship/study_project_jessica/input_data"
         landusemaps_np = initial_population.initialize_spatial(n_samples, default_directory)
         return landusemaps_np

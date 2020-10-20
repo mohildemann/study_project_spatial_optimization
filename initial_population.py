@@ -8,8 +8,7 @@ Created on Thu Oct  8 09:13:52 2020
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-from pymoo.model.population import pop_from_array_or_individual
-import compute_genome
+
 # make initial population for genetic algorithm
 def initialize_spatial(pop_size,default_directory):
     all_landusemaps = []
@@ -20,13 +19,14 @@ def initialize_spatial(pop_size,default_directory):
     
     # iterate to get multiple realisations for the initial population
     for i in range(1,pop_size+1):
-
         
         #use uniform distribution to select 30% of the cells    
         landuse_map_ini = np.zeros((rows,cols),dtype='uint8')
         random_map = np.random.uniform(0.0,1.0,(rows,cols))
         random_map_mw = np.zeros((rows,cols))
         
+        # take window average of of random map
+        # to create larger patches
         for x in range(0,cols):
             for y in range(0,rows):
                 if x == 0 or y == 0 or x == cols-1 or y == rows-1:
@@ -46,10 +46,17 @@ def initialize_spatial(pop_size,default_directory):
         #choose which land cover type
         landuse_map_ini = np.where(landuse_map_ini == 0, np.random.uniform(0.0,1.0,(rows,cols)), landuse_map_ini)
         
-        landuse_map_ini = np.where(landuse_map_ini < 0.25, 4, landuse_map_ini)
-        landuse_map_ini = np.where(landuse_map_ini < 0.50, 5, landuse_map_ini)
-        landuse_map_ini = np.where(landuse_map_ini < 0.75, 6, landuse_map_ini)
-        landuse_map_ini = np.where(landuse_map_ini < 1.00, 7, landuse_map_ini)
+        landuse_map_ini = np.where(landuse_map_ini < 0.2, 3, landuse_map_ini)
+        landuse_map_ini = np.where(landuse_map_ini < 0.4, 4, landuse_map_ini)
+        landuse_map_ini = np.where(landuse_map_ini < 0.6, 5, landuse_map_ini)
+        landuse_map_ini = np.where(landuse_map_ini < 0.8, 6, landuse_map_ini)
+        landuse_map_ini = np.where(landuse_map_ini < 1.0, 7, landuse_map_ini)
         #patchmap, genome =compute_genome.create_patch_ID_map(landuse_map_ini,0,[8,9],'True')
+        
+        if i < 4:        
+            cmap = ListedColormap(["#10773e","#b3cc33", "#0cf8c1", "#a4507d", "#877712","#be94e8","#eeefce","#1b5ee4","#614040","#00000000"])
+            plt.imsave(default_directory + "/Landuse_maps/MatoGrosso_2017_realization"+str(i)+".tif",landuse_map_ini,format='tiff',cmap=cmap,vmin=0.5,vmax=10.5,dpi=1000)
+
+        
         all_landusemaps.append(landuse_map_ini)
     return np.array(all_landusemaps)

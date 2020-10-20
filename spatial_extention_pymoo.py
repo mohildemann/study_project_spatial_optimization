@@ -29,7 +29,7 @@ def _new_get_crossover_options():
         from pymoo.operators.integer_from_float_operator import IntegerFromFloatCrossover
         from pymoo.operators.crossover.edge_recombination_crossover import EdgeRecombinationCrossover
         from pymoo.operators.crossover.order_crossover import OrderCrossover
-        from landuse_crossover import SpatialOnePointCrossover
+        from spatial_crossover import SpatialOnePointCrossover
         CROSSOVER = [
             ("real_sbx", SimulatedBinaryCrossover, dict(prob=0.9, eta=30)),
             ("int_sbx", IntegerFromFloatCrossover, dict(clazz=SimulatedBinaryCrossover, prob=0.9, eta=30)),
@@ -52,7 +52,7 @@ def _new_get_mutation_options():
     from pymoo.operators.mutation.polynomial_mutation import PolynomialMutation
     from pymoo.operators.integer_from_float_operator import IntegerFromFloatMutation
     from pymoo.operators.mutation.inversion_mutation import InversionMutation
-    from landuse_mutation import SpatialNPointMutation
+    from spatial_mutation import SpatialNPointMutation
 
     MUTATION = [
         ("none", NoMutation, {}),
